@@ -8,6 +8,22 @@
   </head>
   <body>
     <p>TicTacToe</p>
-    <div class="board"></div>
+    <!-- select game mode - 1 or 2 player -->
+    <div class="gameMode">
+      <button onclick="startSinglePlayerGame()">single player</button>
+      <button onclick="startTwoPlayerGame()">two player</button>
+    </div>
+    <!-- if 2 player selected, inputs to enter names -->
+    <form class="playerForm" style="display: none">
+      <input type="text" id="player1" placeholder="Player 1" />
+      <input type="text" id="player2" placeholder="Player 2" />
+      <button type="submit">Start Game</button>
+    </form>
+    <!-- name display/scoreboard -->
+    <div class="scoreBoard">
+      <p class="player1Display">Player 1:</p>
+      <p class="player2Display">Player 2:</p>
+    </div>
+    <div class="board" style="display: none"></div>
   </body>
 </html>
