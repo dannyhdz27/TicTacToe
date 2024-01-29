@@ -41,7 +41,6 @@ function startSinglePlayerGame() {
 function startTwoPlayerGame() {
   document.querySelector(".gameMode").style.display = "none";
   document.querySelector(".playerForm").style.display = "block";
-  //   document.querySelector(".board").style.display = "grid";
 }
 
 document
@@ -49,15 +48,15 @@ document
   .addEventListener("submit", function (event) {
     event.preventDefault();
 
-    //select value of the inputs with the Id of player1 or player2 and store it in a variable
-    const player1Name = document.getElementById("player1").value;
-    const player2Name = document.getElementById("player2").value;
+    //select value of the inputs with the Id of player1 or player2 and store it in a variable. or if nothing is entered, default to string.
+    const player1Name = document.getElementById("player1").value || "player 1";
+    const player2Name = document.getElementById("player2").value || "player 2";
 
-    // select the p tag with the class of player1Display and store it in a variable.
+    // select the p tag with the class of player1Display and store it in a variable. (we'll need this to add a span to it later)
     const player1Display = document.querySelector(".player1Display");
     const player2Display = document.querySelector(".player2Display");
 
-    //create a span element. this is where we'll store the updated innertext value, which will be player1Name(the input value)
+    //create a span element. this is where innerText will be updated.
     const createP1 = document.createElement("span");
     const createP2 = document.createElement("span");
 
@@ -65,10 +64,37 @@ document
     createP1.innerText = player1Name;
     createP2.innerText = player2Name;
 
-    //lastly, add the span to the selected p tag(player1Display)
+    //lastly, append the span to the selected p tag(player1Display)
     player1Display.append(createP1);
     player2Display.append(createP2);
 
+    gameState.players[0] = player1Name;
+    gameState.players[1] = player2Name;
+
     document.querySelector(".playerForm").style.display = "none";
     document.querySelector(".board").style.display = "grid";
+    document.querySelector(".scoreBoard").style.display = "block";
+    console.log(gameState.players[0]);
   });
+
+board.addEventListener("click", (event) => {
+  const row = event.target.id[0];
+  const col = event.target.id[2];
+
+  if (gameState.board[row][col] !== null) {
+    console.log("Cell already clicked!");
+    return;
+  }
+
+  gameState.board[row][col] = gameState.currentPlayer;
+  event.target.innerText = gameState.players[gameState.currentPlayer];
+  gameState.currentPlayer = 1 - gameState.currentPlayer;
+
+  console.log(gameState.board);
+  console.log("you clicked box with id", row, col);
+  updateBoardDisplay();
+});
+
+function updateBoardDisplay() {}
+
+console.log(gameState.board);
