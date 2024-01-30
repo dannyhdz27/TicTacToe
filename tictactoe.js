@@ -87,14 +87,68 @@ board.addEventListener("click", (event) => {
   }
 
   gameState.board[row][col] = gameState.currentPlayer;
-  event.target.innerText = gameState.players[gameState.currentPlayer];
+  if (gameState.currentPlayer === 0) {
+    event.target.innerText = "X";
+  } else {
+    event.target.innerText = "O";
+  }
   gameState.currentPlayer = 1 - gameState.currentPlayer;
 
   console.log(gameState.board);
   console.log("you clicked box with id", row, col);
+  checkWin();
   updateBoardDisplay();
 });
 
 function updateBoardDisplay() {}
+
+function checkWin() {
+  let hasWon = false;
+
+  //checks rows for win
+  for (let i = 0; i < 3; i++) {
+    if (
+      gameState.board[i][0] !== null &&
+      gameState.board[i][0] === gameState.board[i][1] &&
+      gameState.board[i][1] === gameState.board[i][2]
+    ) {
+      hasWon = true;
+    }
+  }
+
+  //checks columns for win
+  for (let i = 0; i < 3; i++) {
+    if (
+      gameState.board[0][i] !== null &&
+      gameState.board[0][i] === gameState.board[1][i] &&
+      gameState.board[1][i] === gameState.board[2][i]
+    ) {
+      hasWon = true;
+    }
+  }
+
+  if (
+    gameState.board[0][0] !== null &&
+    gameState.board[0][0] === gameState.board[1][1] &&
+    gameState.board[1][1] === gameState.board[2][2]
+  ) {
+    hasWon = true;
+  }
+
+  if (
+    gameState.board[0][2] !== null &&
+    gameState.board[0][2] === gameState.board[1][1] &&
+    gameState.board[1][1] === gameState.board[2][0]
+  ) {
+    hasWon = true;
+  }
+  if (hasWon) {
+    let winner = gameState.players[gameState.currentPlayer];
+    console.log(`${winner} wins!`);
+    gameState.players[gameState.currentPlayer].wins++;
+    updateScore();
+    resetGame();
+  }
+}
 
 console.log(gameState.board);
