@@ -68,16 +68,22 @@ document
     player1Display.append(createP1);
     player2Display.append(createP2);
 
-    gameState.players[0] = player1Name;
-    gameState.players[1] = player2Name;
+    gameState.players[0].name = player1Name;
+    gameState.players[1].name = player2Name;
 
     document.querySelector(".playerForm").style.display = "none";
     document.querySelector(".board").style.display = "grid";
-    document.querySelector(".scoreBoard").style.display = "block";
+    document.querySelector(".scoreBoard").style.display = "flex";
     console.log(gameState.players[0]);
   });
 
+let gameEnded = false;
+
 board.addEventListener("click", (event) => {
+  if (gameEnded) {
+    console.log("The game has already ended!");
+    return;
+  }
   const row = event.target.id[0];
   const col = event.target.id[2];
 
@@ -97,10 +103,44 @@ board.addEventListener("click", (event) => {
   console.log(gameState.board);
   console.log("you clicked box with id", row, col);
   checkWin();
-  updateBoardDisplay();
+
+  console.log(playerOne);
+  console.log(playerTwo);
 });
 
-function updateBoardDisplay() {}
+function resetScores() {
+  gameState.players.forEach((player) => {
+    player.wins = 0;
+  });
+  updateScore(); // Update the displayed scores
+}
+
+function reset() {
+  gameState.board = [
+    [null, null, null],
+    [null, null, null],
+    [null, null, null],
+  ];
+  gameEnded = false;
+  const cells = document.querySelectorAll(".cell");
+  cells.forEach((cell) => {
+    cell.innerText = ""; // Reset the innerText of each cell
+  });
+  resetScores();
+}
+
+function resetBoard() {
+  gameState.board = [
+    [null, null, null],
+    [null, null, null],
+    [null, null, null],
+  ];
+  gameEnded = false;
+  const cells = document.querySelectorAll(".cell");
+  cells.forEach((cell) => {
+    cell.innerText = ""; // Reset the innerText of each cell
+  });
+}
 
 function checkWin() {
   let hasWon = false;
@@ -143,12 +183,40 @@ function checkWin() {
     hasWon = true;
   }
   if (hasWon) {
-    let winner = gameState.players[gameState.currentPlayer];
+    let winner = gameState.players[1 - gameState.currentPlayer].name;
     console.log(`${winner} wins!`);
-    gameState.players[gameState.currentPlayer].wins++;
+    gameState.players[1 - gameState.currentPlayer].wins++;
+    gameEnded = true;
+
     updateScore();
-    resetGame();
+    document.querySelector(".winnerText").innerText = `${winner} wins!`;
+    document.querySelector(".overlay").style.display = "flex";
   }
 }
 
+function playAgain() {
+  // Hide the overlay
+  document.querySelector(".overlay").style.display = "none";
+
+  // Reset the board and any other necessary game state
+  resetBoard();
+  gameEnded = false;
+}
+
+function updateScore() {
+  const p1Score = document.querySelector(".p1Score");
+  const p2Score = document.querySelector(".p2Score");
+
+  p1Score.innerHTML = "";
+  p2Score.innerHTML = "";
+
+  const newP1Score = document.createElement("span");
+  const newP2Score = document.createElement("span");
+
+  newP1Score.innerText = gameState.players[0].wins;
+  newP2Score.innerText = gameState.players[1].wins;
+
+  p1Score.appendChild(newP1Score);
+  p2Score.appendChild(newP2Score);
+}
 console.log(gameState.board);

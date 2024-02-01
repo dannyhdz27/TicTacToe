@@ -20,10 +20,24 @@
       <button type="submit">Start Game</button>
     </form>
     <!-- name display/scoreboard -->
+
     <div class="scoreBoard" style="display: none">
-      <p class="player1Display">Player 1:&nbsp;</p>
-      <p class="player2Display">Player 2:&nbsp;</p>
+      <div class="p1">
+        <p class="player1Display">Player 1:&nbsp;</p>
+        <p class="p1Score">-</p>
+      </div>
+      <div class="p2">
+        <p class="player2Display">Player 2:&nbsp;</p>
+        <p class="p2Score">-</p>
+      </div>
+      <div><button onclick="reset()">reset</button></div>
     </div>
     <div class="board" style="display: none"></div>
+    <div class="overlay">
+      <div class="modal">
+        <p class="winnerText"></p>
+        <button onclick="playAgain()">Play Again</button>
+      </div>
+    </div>
   </body>
 </html>
