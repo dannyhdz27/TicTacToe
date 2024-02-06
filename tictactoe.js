@@ -36,6 +36,7 @@ function startSinglePlayerGame() {
   document.querySelector(".gameMode").style.display = "none";
   document.querySelector(".scoreBoard").style.display = "flex";
   gameState.players[1].name = "Computer";
+  updatePlayerNames();
 }
 
 function startTwoPlayerGame() {
@@ -43,6 +44,22 @@ function startTwoPlayerGame() {
   document.querySelector(".playerForm").style.display = "block";
 }
 
+function goBack() {
+  reset();
+  document.querySelector(".board").style.display = "none";
+
+  // Show the buttons
+  document.querySelector(".gameMode").style.display = "block";
+  document.querySelector(".playerForm").style.display = "none";
+  document.querySelector(".scoreBoard").style.display = "none";
+}
+function updatePlayerNames() {
+  const player1Display = document.querySelector(".player1Display");
+  const player2Display = document.querySelector(".player2Display");
+
+  player1Display.innerText = gameState.players[0].name;
+  player2Display.innerText = gameState.players[1].name;
+}
 document
   .querySelector(".playerForm")
   .addEventListener("submit", function (event) {
@@ -52,6 +69,10 @@ document
     const player1Name = document.getElementById("player1").value || "player 1";
     const player2Name = document.getElementById("player2").value || "player 2";
 
+    gameState.players[0].name = player1Name;
+    gameState.players[1].name = player2Name;
+
+    updatePlayerNames();
     // select the p tag with the class of player1Display and store it in a variable. (we'll need this to add a span to it later)
     const player1Display = document.querySelector(".player1Display");
     const player2Display = document.querySelector(".player2Display");
@@ -61,20 +82,18 @@ document
     const createP2 = document.createElement("span");
 
     //update the innerText of the span we just created.
-    createP1.innerText = player1Name;
-    createP2.innerText = player2Name;
+    // createP1.innerText = player1Name;
+    // createP2.innerText = player2Name;
 
     //lastly, append the span to the selected p tag(player1Display)
     player1Display.append(createP1);
     player2Display.append(createP2);
 
-    gameState.players[0].name = player1Name;
-    gameState.players[1].name = player2Name;
-
     document.querySelector(".playerForm").style.display = "none";
     document.querySelector(".board").style.display = "grid";
     document.querySelector(".scoreBoard").style.display = "flex";
     console.log(gameState.players[0]);
+    console.log(gameState.players[1]);
   });
 
 let gameEnded = false;
@@ -89,17 +108,23 @@ board.addEventListener("click", (event) => {
 
   if (gameState.board[row][col] !== null) {
     console.log("Cell already clicked!");
+
     return;
   }
 
   if (gameState.players[1].name === "Computer") {
+    gameState.currentPlayer = 0;
+    console.log(gameState.currentPlayer);
     gameState.board[row][col] = 0;
     event.target.innerText = "X";
     setTimeout(() => {
       computerMove();
-      checkWin();
-      gameState.currentPlayer = 1;
-    }, 1000);
+    }, 50);
+    //computerMove();
+    checkWin();
+
+    gameState.currentPlayer = 1 - gameState.currentPlayer;
+    console.log(gameState.currentPlayer);
   } else {
     gameState.board[row][col] = gameState.currentPlayer;
     if (gameState.currentPlayer === 0) {
@@ -108,13 +133,15 @@ board.addEventListener("click", (event) => {
       event.target.innerText = "O";
     }
     checkWin();
-    setTimeout(() => {
-      gameState.currentPlayer = 1 - gameState.currentPlayer;
-    }, 1000);
+    checkTie();
+    gameState.currentPlayer = 1 - gameState.currentPlayer;
+    // setTimeout(() => {
+    //   gameState.currentPlayer = 1 - gameState.currentPlayer;
+    // }, 1000);
   }
   console.log(gameState.board);
   console.log("you clicked box with id", row, col);
-  checkWin();
+  //   checkWin();
 });
 
 function computerMove() {
@@ -132,6 +159,7 @@ function computerMove() {
       computerCell.innerText = "O";
       console.log("Computer moved to", row, col);
       checkWin();
+      checkTie();
     } else {
       // Cell is already occupied, check again
       computerMove();
@@ -164,6 +192,9 @@ function reset() {
     [null, null, null],
     [null, null, null],
   ];
+
+  gameState.players[0].name = "Player 1";
+  gameState.players[1].name = "Player 2";
   gameEnded = false;
   const cells = document.querySelectorAll(".cell");
   cells.forEach((cell) => {
@@ -225,16 +256,36 @@ function checkWin() {
   ) {
     hasWon = true;
   }
+
   if (hasWon) {
-    let winner = gameState.players[1 - gameState.currentPlayer].name;
+    console.log("has won", gameState.currentPlayer);
+    let winner = gameState.players[gameState.currentPlayer].name;
     console.log(`${winner} wins!`);
-    gameState.players[1 - gameState.currentPlayer].wins++;
+    gameState.players[gameState.currentPlayer].wins++;
     gameEnded = true;
 
-    updateScore();
     document.querySelector(".winnerText").innerText = `${winner} wins!`;
     document.querySelector(".overlay").style.display = "flex";
+    updateScore();
+  } else {
+    if (checkTie()) {
+      document.querySelector(".winnerText").innerText = "it's a tie!";
+      document.querySelector(".overlay").style.display = "flex";
+    }
   }
+}
+
+function checkTie() {
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      const currentCell = gameState.board[i][j];
+      if (currentCell === null) {
+        return false;
+      }
+    }
+  }
+  console.log("it's a tie!");
+  return true;
 }
 
 function playAgain() {
