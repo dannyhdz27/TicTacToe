@@ -31,11 +31,11 @@ for (let row = 0; row < boardSize; row++) {
   }
 }
 
-function startGame() {}
-
 function startSinglePlayerGame() {
   document.querySelector(".board").style.display = "grid";
   document.querySelector(".gameMode").style.display = "none";
+  document.querySelector(".scoreBoard").style.display = "flex";
+  gameState.players[1].name = "Computer";
 }
 
 function startTwoPlayerGame() {
@@ -92,21 +92,64 @@ board.addEventListener("click", (event) => {
     return;
   }
 
-  gameState.board[row][col] = gameState.currentPlayer;
-  if (gameState.currentPlayer === 0) {
+  if (gameState.players[1].name === "Computer") {
+    gameState.board[row][col] = 0;
     event.target.innerText = "X";
+    setTimeout(() => {
+      computerMove();
+      checkWin();
+      gameState.currentPlayer = 1;
+    }, 1000);
   } else {
-    event.target.innerText = "O";
+    gameState.board[row][col] = gameState.currentPlayer;
+    if (gameState.currentPlayer === 0) {
+      event.target.innerText = "X";
+    } else {
+      event.target.innerText = "O";
+    }
+    checkWin();
+    setTimeout(() => {
+      gameState.currentPlayer = 1 - gameState.currentPlayer;
+    }, 1000);
   }
-  gameState.currentPlayer = 1 - gameState.currentPlayer;
-
   console.log(gameState.board);
   console.log("you clicked box with id", row, col);
   checkWin();
-
-  console.log(playerOne);
-  console.log(playerTwo);
 });
+
+function computerMove() {
+  // choose a random empty cell
+  const emptyCells = getEmptyCells();
+  if (emptyCells.length > 0) {
+    const randomIndex = Math.floor(Math.random() * emptyCells.length);
+    const randomCell = emptyCells[randomIndex];
+    const [row, col] = randomCell;
+
+    if (gameState.board[row][col] === null) {
+      gameState.board[row][col] = gameState.currentPlayer;
+      const cellId = `${row}-${col}`;
+      const computerCell = document.getElementById(cellId);
+      computerCell.innerText = "O";
+      console.log("Computer moved to", row, col);
+      checkWin();
+    } else {
+      // Cell is already occupied, check again
+      computerMove();
+    }
+  }
+}
+
+function getEmptyCells() {
+  const emptyCells = [];
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      if (gameState.board[i][j] === null) {
+        emptyCells.push([i, j]);
+      }
+    }
+  }
+  return emptyCells;
+}
 
 function resetScores() {
   gameState.players.forEach((player) => {
@@ -198,7 +241,7 @@ function playAgain() {
   // Hide the overlay
   document.querySelector(".overlay").style.display = "none";
 
-  // Reset the board and any other necessary game state
+  // Reset the board
   resetBoard();
   gameEnded = false;
 }
