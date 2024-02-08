@@ -22,16 +22,18 @@
     <!-- name display/scoreboard -->
 
     <div class="scoreBoard" style="display: none">
-      <div class="p1">
-        <p class="player1Display">Player 1:&nbsp;</p>
-        <p class="p1Score">-</p>
+      <div class="playerNames">
+        <div class="p1">
+          <p class="player1Display">Player 1:&nbsp;</p>
+          <p class="p1Score">-</p>
+        </div>
+        <div class="p2">
+          <p class="player2Display">Player 2:&nbsp;</p>
+          <p class="p2Score">-</p>
+        </div>
       </div>
-      <div class="p2">
-        <p class="player2Display">Player 2:&nbsp;</p>
-        <p class="p2Score">-</p>
-      </div>
-      <div><button onclick="reset()">reset</button></div>
-      <div><button onclick="goBack()">back</button></div>
+      <button class="reset-button" onclick="reset()">reset</button>
+      <button class="back-button" onclick="goBack()">back</button>
     </div>
     <div class="board" style="display: none"></div>
     <div class="overlay">

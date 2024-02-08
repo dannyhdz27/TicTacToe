@@ -11,15 +11,43 @@ body {
   grid-template-rows: repeat(3, 1fr);
   grid-template-columns: repeat(3, 1fr);
 }
-
-.cell {
-  border: 1px solid #aaa;
+.scoreBoard {
+  /* display: flex;
+    width: 500px;
+    justify-content: space-between; */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.scoreBoard {
+.playerNames {
   display: flex;
-  width: 500px;
-  justify-content: space-between;
+  width: 100%;
+  justify-content: space-around;
+}
+
+.reset-button,
+.back-button {
+  margin-bottom: 10px; /* Add some space between the buttons */
+  padding: 10px 10px; /* Add padding to the buttons */
+  font-size: 16px; /* Adjust the font size of the buttons */
+  background-color: #f0f0f0; /* Set button background color */
+  border: none; /* Remove button border */
+  border-radius: 5px; /* Add button border radius */
+  cursor: pointer; /* Add cursor pointer on hover */
+}
+
+.reset-button:hover,
+.back-button:hover {
+  background-color: #e0e0e0; /* Change button background color on hover */
+}
+.cell {
+  border: 1px solid #aaa;
+  display: flex;
+  justify-content: center; /* Center X's and O's horizontally */
+  align-items: center; /* Center X's and O's vertically */
+  font-size: 24px;
 }
 
 .overlay {
@@ -35,7 +63,23 @@ body {
 }
 
 .modal {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.842);
   padding: 20px;
   text-align: center;
+}
+@media (max-width: 600px) {
+  .board {
+    width: 400px;
+    height: 400px;
+    grid-template-columns: repeat(
+      3,
+      1fr
+    ); /* Adjust the width of each cell for smaller screens */
+    grid-template-rows: repeat(
+      3,
+      1fr
+    ); /* Adjust the height of each cell for smaller screens */
+    gap: 3px; /* Adjust the gap between cells for smaller screens */
+    font-size: 18px; /* Adjust the font size of X's and O's for smaller screens */
+  }
 }
