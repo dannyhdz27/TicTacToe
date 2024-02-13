@@ -97,7 +97,15 @@ document
 
 let gameEnded = false;
 
-board.addEventListener("click", (event) => {
+function handleBoardClick(event) {
+  if (gameState.players[1].name !== "Computer") {
+    handleBoardClickTwo(event);
+  } else {
+    handleBoardClickSingle(event);
+  }
+}
+
+function handleBoardClickTwo(event) {
   if (gameEnded) {
     console.log("The game has already ended!");
     return;
@@ -111,51 +119,67 @@ board.addEventListener("click", (event) => {
     return;
   }
 
-  if (gameState.players[1].name === "Computer") {
-    console.log("current player:", gameState.currentPlayer);
-
-    gameState.board[row][col] = 0;
+  gameState.board[row][col] = gameState.currentPlayer;
+  if (gameState.currentPlayer === 0) {
     event.target.innerText = "X";
-
-    computerMove();
-    checkWin();
-
-    console.log("current player:", gameState.currentPlayer);
   } else {
-    gameState.board[row][col] = gameState.currentPlayer;
-    if (gameState.currentPlayer === 0) {
-      event.target.innerText = "X";
-    } else {
-      event.target.innerText = "O";
-    }
-    checkWin();
-
-    gameState.currentPlayer = 1 - gameState.currentPlayer;
+    event.target.innerText = "O";
   }
-  console.log(gameState.board);
-});
+  checkWin(row, col);
+
+  gameState.currentPlayer = 1 - gameState.currentPlayer;
+}
+console.log(gameState.board);
+
+//ends
+
+function handleBoardClickSingle(event) {
+  if (gameEnded) {
+    console.log("The game has already ended!");
+    return;
+  }
+  const row = event.target.id[0];
+  const col = event.target.id[2];
+
+  if (gameState.board[row][col] !== null) {
+    console.log("Cell already clicked!");
+
+    return;
+  }
+
+  console.log("lastWinner:", gameState.lastWinner);
+  console.log("current player:", gameState.currentPlayer);
+
+  gameState.board[row][col] = 0;
+  event.target.innerText = "X";
+  checkWinSinglePlayer();
+  if (!gameEnded) {
+    computerMove();
+    checkWinSinglePlayer();
+  }
+
+  console.log("current player:", gameState.currentPlayer);
+}
+
+board.addEventListener("click", handleBoardClick);
 
 function computerMove() {
-  // choose a random empty cell
+  const emptyCells = getEmptyCells();
   console.log("game ended?", gameEnded);
-  if (gameEnded) {
+  if (gameEnded || emptyCells.length === 0) {
     return;
-  } else {
-    const emptyCells = getEmptyCells();
-    if (emptyCells.length > 0) {
-      const randomIndex = Math.floor(Math.random() * emptyCells.length);
-      const randomCell = emptyCells[randomIndex];
-      const [row, col] = randomCell;
-
-      if (gameState.board[row][col] === null) {
-        gameState.board[row][col] = 1;
-        const cellId = `${row}-${col}`;
-        const computerCell = document.getElementById(cellId);
-        computerCell.innerText = "O";
-      }
-    }
   }
-  gameState.currentPlayer = 1 - gameState.currentPlayer;
+
+  const randomIndex = Math.floor(Math.random() * emptyCells.length);
+  const randomCell = emptyCells[randomIndex];
+  const [row, col] = randomCell;
+
+  if (gameState.board[row][col] === null) {
+    gameState.board[row][col] = 1;
+    const cellId = `${row}-${col}`;
+    const computerCell = document.getElementById(cellId);
+    computerCell.innerText = "O";
+  }
 }
 
 function getEmptyCells() {
@@ -207,7 +231,7 @@ function resetBoard() {
   });
 }
 
-function checkWin() {
+function checkWin(row, col) {
   let hasWon = false;
 
   //checks rows for win
@@ -249,16 +273,28 @@ function checkWin() {
   }
 
   if (hasWon) {
-    if (gameState.players[gameState.currentPlayer].name === "Computer") {
-      gameState.lastWinner = 1;
+    let winnerName;
+    const lastMove = gameState.board[row][col];
+    if (gameState.players[1].name === "Computer") {
+      if (lastMove === "0") {
+        console.log("last move was 0?", lastMove);
+        gameState.lastWinner = 0;
+        winnerName = gameState.players[0].name;
+        gameState.players[0].wins++;
+      } else {
+        console.log("last move was 0?", lastMove);
+        gameState.lastWinner = 1;
+        winnerName = gameState.players[1].name;
+        gameState.players[1].wins++;
+      }
     } else {
-      gameState.lastWinner = 0;
+      winnerName = gameState.players[gameState.currentPlayer].name;
+      console.log(`${winnerName} wins!`);
+      gameState.players[gameState.currentPlayer].wins++;
     }
 
-    let winnerName = gameState.players[gameState.currentPlayer].name;
-    console.log(`${winnerName} wins!`);
-    gameState.players[gameState.currentPlayer].wins++;
     gameEnded = true;
+
     updateScore();
     document.querySelector(".winnerText").innerText = `${winnerName} wins!`;
     document.querySelector(".overlay").style.display = "flex";
@@ -266,6 +302,91 @@ function checkWin() {
     return;
   } else if (checkTie()) {
     gameEnded = true;
+
+    document.querySelector(".winnerText").innerText = "it's a tie!";
+    document.querySelector(".overlay").style.display = "flex";
+  }
+}
+
+function checkWinSinglePlayer() {
+  let playerHasWon = false;
+  let computerHasWon = false;
+
+  //checks rows for win
+  for (let i = 0; i < 3; i++) {
+    if (
+      gameState.board[i][0] !== null &&
+      gameState.board[i][0] === gameState.board[i][1] &&
+      gameState.board[i][1] === gameState.board[i][2]
+    ) {
+      if (gameState.board[i][0] === 0) {
+        playerHasWon = true;
+      } else if (gameState.board[i][0] === 1) {
+        computerHasWon = true;
+      }
+    }
+  }
+
+  //checks columns for win
+  for (let i = 0; i < 3; i++) {
+    if (
+      gameState.board[0][i] !== null &&
+      gameState.board[0][i] === gameState.board[1][i] &&
+      gameState.board[1][i] === gameState.board[2][i]
+    ) {
+      if (gameState.board[0][i] === 0) {
+        playerHasWon = true;
+      } else if (gameState.board[0][i] === 1) {
+        computerHasWon = true;
+      }
+    }
+  }
+
+  if (
+    gameState.board[0][0] !== null &&
+    gameState.board[0][0] === gameState.board[1][1] &&
+    gameState.board[1][1] === gameState.board[2][2]
+  ) {
+    if (gameState.board[0][0] === 0) {
+      playerHasWon = true;
+    } else if (gameState.board[0][0] === 1) {
+      computerHasWon = true;
+    }
+  }
+
+  if (
+    gameState.board[0][2] !== null &&
+    gameState.board[0][2] === gameState.board[1][1] &&
+    gameState.board[1][1] === gameState.board[2][0]
+  ) {
+    if (gameState.board[0][2] === 0) {
+      playerHasWon = true;
+    } else if (gameState.board[0][2] === 1) {
+      computerHasWon = true;
+    }
+  }
+  let winnerName;
+  if (playerHasWon) {
+    winnerName = gameState.players[0].name;
+    gameEnded = true;
+
+    updateScore();
+    document.querySelector(".winnerText").innerText = `${winnerName} wins!`;
+    document.querySelector(".overlay").style.display = "flex";
+    console.log(gameEnded);
+    return;
+  } else if (computerHasWon) {
+    winnerName = gameState.players[1].name;
+    gameEnded = true;
+
+    updateScore();
+    document.querySelector(".winnerText").innerText = `${winnerName} wins!`;
+    document.querySelector(".overlay").style.display = "flex";
+    console.log(gameEnded);
+    return;
+  } else if (checkTie()) {
+    gameEnded = true;
+
     document.querySelector(".winnerText").innerText = "it's a tie!";
     document.querySelector(".overlay").style.display = "flex";
   }
@@ -285,14 +406,16 @@ function checkTie() {
 }
 
 function playAgain() {
-  // Hide the overlay
+  // Hide overlay
   document.querySelector(".overlay").style.display = "none";
   resetBoard();
   gameEnded = false;
-  if (gameState.lastWinner === 0 && gameState.players[1].name === "Computer") {
-    // gameState.currentPlayer = 1; // Let the computer start the game
+  if (gameState.players[1].name === "Computer" && gameState.lastWinner === 0) {
     computerMove();
   }
+
+  console.log("lastWinner:", gameState.lastWinner);
+  console.log("current player:", gameState.currentPlayer);
 }
 
 function updateScore() {
