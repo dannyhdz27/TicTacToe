@@ -368,6 +368,7 @@ function checkWinSinglePlayer() {
   let winnerName;
   if (playerHasWon) {
     winnerName = gameState.players[0].name;
+    gameState.players[0].wins++;
     gameEnded = true;
 
     updateScore();
@@ -377,6 +378,7 @@ function checkWinSinglePlayer() {
     return;
   } else if (computerHasWon) {
     winnerName = gameState.players[1].name;
+    gameState.players[1].wins++;
     gameEnded = true;
 
     updateScore();
